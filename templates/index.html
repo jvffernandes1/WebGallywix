@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallywix - Calculadora Financeira</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Simulador</a>
+        <a href="{{ url_for('carteira') }}">Carteira</a>
+    </div>
+    <div class="container">
+        <div class="header">
+            <h1>Gallywix - Calculadora Financeira</h1>
+        </div>
+        <div class="form-section">
+            <form method="POST" action="/">
+                <label for="ticker">Ticker:</label>
+                <input type="text" id="ticker" name="ticker" placeholder="Exemplo: ITSA4.SA" required>
+                <div id="dropdown" class="dropdown-content"></div>
+
+                <label for="aporte_inicial">Aporte Inicial:</label>
+                <input type="text" id="aporte_inicial" name="aporte_inicial" placeholder="0,00" required>
+
+                <label for="aporte_mensal">Aporte Mensal:</label>
+                <input type="text" id="aporte_mensal" name="aporte_mensal" placeholder="0,00" required>
+
+                <label for="start_date">Data de Início:</label>
+                <input type="date" id="start_date" name="start_date" value="2024-01-01" required>
+
+                <label for="end_date">Data de Fim:</label>
+                <input type="date" id="end_date" name="end_date" value="2024-12-31" required>
+
+                <label for="source">Engine:</label>
+                <select id="source" name="source" required>
+                    <option value="Gallywix">Gallywix v0.0.1</option>
+                    <option value="yfinance">Yahoo! Finance</option>
+                    <option value="economatica" disabled>Economática</option>
+                    <option value="Alpha Vantage" disabled>Alpha Vantage</option>
+                </select>
+
+                <label for="benchmark">Benchmark:</label>
+                <select id="benchmark" name="benchmark" required>
+                    <option value="none">None</option>
+                    <option value="CDI">CDI</option>
+                    <option value="SELIC">SELIC</option>
+                    <option value="IPCA" disabled>IPCA</option>
+                    <option value="IBOV" disabled>IBOV</option>
+                </select>
+
+                <button type="submit">Plotar</button>
+            </form>
+        </div>
+        {% if graphJSON %}
+        <div id="plot">
+            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+            <div id="plotly-graph" style="width: 100%; height: 700px;"></div>
+            <script>
+                var graphJSON = {{ graphJSON|safe }};
+                Plotly.react('plotly-graph', graphJSON.data, graphJSON.layout);
+            </script>
+        </div>
+        <a href="/download">
+            <button type="button">Download CSV</button>
+        </a>
+        {% endif %}
+
+{#        {% if data is not none and not data.empty %}#}
+{#            <h2>Dados do Ticker</h2>#}
+{#            <table border="1">#}
+{#                <tr>#}
+{#                    <th>Data</th>#}
+{#                    <th>Preço de Fechamento</th>#}
+{#                </tr>#}
+{#                {% for date, row in data.iterrows() %}#}
+{#                <tr>#}
+{#                    <td>{{ date }}</td>#}
+{#                    <td>{{ row['Close'] }}</td>#}
+{#                </tr>#}
+{#                {% endfor %}#}
+{#            </table>#}
+{#        {% endif %}#}
+
+        {% if error_message %}
+        <div class="error-message">
+            <p>{{ error_message }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        $('#ticker').on('input', function() {
+            let query = $(this).val();  // Pega o que foi digitado no input
+
+            if (query.length > 0) {
+                $.ajax({
+                    url: '/search_ticker',
+                    method: 'GET',
+                    data: { query: query },
+                    success: function(data) {
+                        // Limpa o dropdown anterior
+                        $('#dropdown').empty();
+
+                        if (data.length > 0) {
+                            $('#dropdown').addClass('dropdown-show');
+                            // Adiciona as opções sugeridas
+                            data.forEach(function(ticker) {
+                                $('#dropdown').append('<a href="#" class="dropdown-item">' + ticker + '</a>');
+                            });
+                        } else {
+                            $('#dropdown').removeClass('dropdown-show');
+                        }
+                    }
+                });
+            } else {
+                $('#dropdown').removeClass('dropdown-show');
+            }
+        });
+
+        // Quando o usuário clica em uma sugestão
+        $(document).on('click', '.dropdown-item', function(e) {
+            e.preventDefault();
+            let selectedTicker = $(this).text();
+            $('#ticker').val(selectedTicker);
+            $('#dropdown').removeClass('dropdown-show');
+        });
+    });
+
+    // Função para formatar o valor como moeda (sem o R$ no input)
+    function formatCurrency(value) {
+        // Remove tudo que não seja número
+        value = value.replace(/\D/g, "");
+
+        // Divide o valor em centavos
+        value = (value / 100).toFixed(2) + "";
+
+        // Adiciona ponto separador de milhar
+        value = value.replace(".", ",");
+
+        // Retorna o valor formatado
+        return value;
+    }
+
+    // Função para aplicar a formatação ao campo de input
+    function applyCurrencyMask(inputElement) {
+        inputElement.addEventListener("input", function (e) {
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+
+            // Formata o valor do input
+            const formattedValue = formatCurrency(this.value);
+
+            // Atualiza o valor do input
+            this.value = formattedValue;
+
+            // Recalcula a posição do cursor
+            const newStart = formattedValue.length > start ? formattedValue.length - (end - start) : formattedValue.length;
+            this.setSelectionRange(newStart, newStart);
+        });
+    }
+
+    // Selecionar os dois campos de input
+    const aporteInicialInput = document.getElementById("aporte_inicial");
+    const aporteMensalInput = document.getElementById("aporte_mensal");
+
+    // Aplicar a máscara aos dois campos
+    applyCurrencyMask(aporteInicialInput);
+    applyCurrencyMask(aporteMensalInput);
+    </script>
+
+</body>
+</html>

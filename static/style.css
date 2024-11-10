@@ -1,0 +1,222 @@
+/* Estilo geral do corpo */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Container principal */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+/* Cabeçalho */
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Título principal */
+h1 {
+    font-size: 2.5em;
+    margin: 0;
+}
+
+/* Formulário */
+.form-section {
+    margin-bottom: 20px;
+}
+
+/* Campos de entrada */
+input[type="text"],
+input[type="date"],
+select {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus {
+    border-color: #3b82f6;
+}
+
+/* Botões */
+button {
+    padding: 10px 20px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: #2563eb;
+}
+
+/* Tabela de dados */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 1em;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #3b82f6;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f4f7f9;
+}
+
+/* Mensagem de erro */
+.error-message {
+    color: #e11d48;
+    background-color: #fddde6;
+    padding: 10px;
+    border: 1px solid #e11d48;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Gráfico */
+#plot {
+    margin-top: 20px;
+}
+
+/* Media Queries para tamanhos de tela menores */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    button {
+        font-size: 1em;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    button {
+        font-size: 0.9em;
+        padding: 8px 16px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+        font-size: 0.8em;
+    }
+}
+
+/* Dropdown ajustado */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    z-index: 1;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%; /* Ajustar o dropdown para a largura do input */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Garante que padding e borda sejam incluídos na largura total */
+}
+
+/* Seletor para ajustar a posição relativa ao input */
+.form-section {
+    position: relative; /* Define o contexto de posicionamento para o dropdown */
+}
+
+/* Itens do dropdown */
+.dropdown-content a {
+    color: #333;
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+    font-size: 1em;
+    border-bottom: 1px solid #ddd;
+}
+
+.dropdown-content a:hover {
+    background-color: #f4f7f9;
+    color: #2563eb;
+}
+
+.dropdown-show {
+    display: block;
+
+}
+
+.navbar {
+    background-color: #3b82f6;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 14px 20px;
+    font-size: 18px;
+}
+
+.navbar a:hover {
+    background-color: #2563eb;
+    color: white;
+}
